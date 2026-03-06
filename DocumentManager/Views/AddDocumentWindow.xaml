@@ -43,7 +43,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" FontWeight="Bold"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="File Name:" FontWeight="Bold"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FileName}" TextWrapping="Wrap"/>
                 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Type:" FontWeight="Bold"/>

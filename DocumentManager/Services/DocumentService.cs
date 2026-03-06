@@ -79,7 +79,7 @@ namespace DocumentManager.Services
 				var fileInfo = new FileInfo(destPath);
 				var document = new Document
 				{
-					Name = fileName,
+					FileName = fileName,
 					FullPath = destPath,
 					Extension = extension,
 					Size = fileInfo.Length,
@@ -108,7 +108,7 @@ namespace DocumentManager.Services
 			{
 				_documents.Remove(document);
 				SaveDocuments(_documents);
-				_loggingService.LogInfo($"Document removed: {document.Name}");
+				_loggingService.LogInfo($"Document removed: {document.FileName}");
 			}
 		}
 
@@ -135,7 +135,7 @@ namespace DocumentManager.Services
 				var fileInfo = new FileInfo(filePath);
 				return new Document
 				{
-					Name = fileInfo.Name,
+					FileName = fileInfo.Name,
 					FullPath = filePath,
 					Extension = fileInfo.Extension,
 					Size = fileInfo.Length,
@@ -170,7 +170,7 @@ namespace DocumentManager.Services
 						if (doc != null && _configService.IsExtensionSupported(doc.Extension))
 						{
 							_documents.Add(doc);
-							_loggingService.LogInfo($"External file detected and added: {doc.Name}");
+							_loggingService.LogInfo($"External file detected and added: {doc.FileName}");
 						}
 					}
 				}

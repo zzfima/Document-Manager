@@ -119,14 +119,14 @@ namespace DocumentManager.ViewModels
 					
 					// Add to history
 					_historyService.AddHistoryEntry(
-						document.Name,
+						document.FileName,
 						filePath,
 						document.Extension,
 						document.Size,
 						"Added");
 					RefreshHistory();
 					
-					_loggingService.LogInfo($"Document added: {document.Name}");
+					_loggingService.LogInfo($"Document added: {document.FileName}");
 				}
 			}
 			catch (Exception ex)

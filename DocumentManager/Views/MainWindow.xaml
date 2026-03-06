@@ -19,7 +19,7 @@
                 <ListView ItemsSource="{Binding Documents}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="File Name" Width="120" DisplayMemberBinding="{Binding FileName}"/>
                             <GridViewColumn Header="Extension" Width="70" DisplayMemberBinding="{Binding Extension}"/>
                             <GridViewColumn Header="Size" Width="80" DisplayMemberBinding="{Binding SizeFormatted}"/>
                             <GridViewColumn Header="Full Path" Width="200" DisplayMemberBinding="{Binding FullPath}"/>

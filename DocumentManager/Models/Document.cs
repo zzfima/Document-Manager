@@ -1,24 +1,9 @@
-using Humanizer;
-
 namespace DocumentManager.Models
 {
-    public class Document
+    public class Document : TemplateDocument
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Name { get; set; } = string.Empty;
         public string FullPath { get; set; } = string.Empty;
-        public string Extension { get; set; } = string.Empty;
-        public long Size { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
-        public DateTime AddedAt { get; set; } = DateTime.Now;
-
-        public string SizeFormatted => FormatSize(Size);
-
-        private string FormatSize(long bytes)
-        {
-            string result = bytes.Bytes().Humanize();
-            return result;
-        }
     }
 }
