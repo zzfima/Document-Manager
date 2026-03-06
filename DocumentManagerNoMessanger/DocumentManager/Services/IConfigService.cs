@@ -1,10 +1,11 @@
-using DocumentManager.Models;
+using System.Collections.Generic;
 
 namespace DocumentManager.Services
 {
 	public interface IConfigService
 	{
-		AppConfig Config { get; }
+		string StorageDirectory { get; }
+		List<string> SupportedExtensions { get; }
 		string GetStorageDirectoryFullPath();
 		bool IsExtensionSupported(string extension);
 		void EnsureStorageDirectoryExists();

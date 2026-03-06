@@ -1,5 +1,5 @@
-using DocumentManager.Models;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DocumentManager.Services
@@ -7,7 +7,8 @@ namespace DocumentManager.Services
 	public class ConfigService : IConfigService
 	{
 		private readonly string _configFilePath;
-		public AppConfig Config { get; private set; } = new AppConfig();
+		public string StorageDirectory { get; private set; } = "DocumentStorage";
+		public List<string> SupportedExtensions { get; private set; } = new List<string>();
 
 		public ConfigService()
 		{
@@ -22,40 +23,32 @@ namespace DocumentManager.Services
 				if (File.Exists(_configFilePath))
 				{
 					var json = File.ReadAllText(_configFilePath);
-					Config = JsonConvert.DeserializeObject<AppConfig>(json) ?? new AppConfig();
-				}
-				else
-				{
-					Config = new AppConfig();
-					SaveConfig();
+					var config = JObject.Parse(json);
+					StorageDirectory = config["StorageDirectory"]?.ToString() ?? "DocumentStorage";
+					SupportedExtensions = config["SupportedExtensions"]?.ToObject<List<string>>() ?? new List<string>();
 				}
 			}
 			catch
 			{
-				Config = new AppConfig();
+				StorageDirectory = "DocumentStorage";
+				SupportedExtensions = new List<string>();
 			}
-		}
-
-		private void SaveConfig()
-		{
-			var json = JsonConvert.SerializeObject(Config, Formatting.Indented);
-			File.WriteAllText(_configFilePath, json);
 		}
 
 		public string GetStorageDirectoryFullPath()
 		{
-			if (Path.IsPathRooted(Config.StorageDirectory))
+			if (Path.IsPathRooted(StorageDirectory))
 			{
-				return Config.StorageDirectory;
+				return StorageDirectory;
 			}
-			return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.StorageDirectory);
+			return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, StorageDirectory);
 		}
 
 		public bool IsExtensionSupported(string extension)
 		{
 			if (string.IsNullOrEmpty(extension)) return false;
 			var ext = extension.StartsWith(".") ? extension : "." + extension;
-			return Config.SupportedExtensions.Any(e =>
+			return SupportedExtensions.Any(e =>
 				e.Equals(ext, StringComparison.OrdinalIgnoreCase));
 		}
 

@@ -17,6 +17,7 @@ namespace DocumentManager.ViewModels
 		private readonly ILoggingService _loggingService;
 		private readonly IFileWatcherService _fileWatcherService;
 		private bool _disposed;
+		private readonly HashSet<string> _recentlyAddedFiles = new(StringComparer.OrdinalIgnoreCase);
 
 		// Observable collections for data binding
 		private ObservableCollection<Document> _documents = new();
@@ -113,6 +114,9 @@ namespace DocumentManager.ViewModels
 				{
 					Documents.Add(document);
 					
+					// Track this file to skip duplicate history from file watcher
+					_recentlyAddedFiles.Add(document.FullPath);
+					
 					// Add to history
 					_historyService.AddHistoryEntry(
 						document.Name,
@@ -160,46 +164,60 @@ namespace DocumentManager.ViewModels
 
 		/// <summary>
 		/// Handles file system changes (requirement 7 - real-time monitoring)
-		/// Uses Dispatcher for thread safety
+		/// Uses Dispatcher for thread safety only when needed
 		/// </summary>
 		private void OnFileChanged(object? sender, FileChangedEventArgs e)
 		{
-			// Thread-safe UI update using Dispatcher
-			Application.Current.Dispatcher.Invoke(() =>
+			// Check if we're already on the UI thread
+			if (Application.Current.Dispatcher.CheckAccess())
 			{
-				try
-				{
-					_documentService.RefreshDocumentsFromStorage();
-					var documents = _documentService.GetAllDocuments();
-					Documents = new ObservableCollection<Document>(documents);
+				HandleFileChange(e);
+			}
+			else
+			{
+				Application.Current.Dispatcher.Invoke(() => HandleFileChange(e));
+			}
+		}
 
-					// Log external changes
-					if (e.ChangeType == FileChangeType.Created)
-					{
-						var fileName = System.IO.Path.GetFileName(e.FilePath);
-						var extension = System.IO.Path.GetExtension(e.FilePath);
-						long size = 0;
-						if (System.IO.File.Exists(e.FilePath))
-						{
-							size = new System.IO.FileInfo(e.FilePath).Length;
-						}
-						_historyService.AddHistoryEntry(fileName, e.FilePath, extension, size, "External Add");
-						RefreshHistory();
-					}
-					else if (e.ChangeType == FileChangeType.Deleted)
-					{
-						var fileName = System.IO.Path.GetFileName(e.FilePath);
-						_historyService.AddHistoryEntry(fileName, e.FilePath, "", 0, "External Delete");
-						RefreshHistory();
-					}
+		private void HandleFileChange(FileChangedEventArgs e)
+		{
+			try
+			{
+				_documentService.RefreshDocumentsFromStorage();
+				var documents = _documentService.GetAllDocuments();
+				Documents = new ObservableCollection<Document>(documents);
 
-					_loggingService.LogInfo($"External file change detected: {e.ChangeType}");
-				}
-				catch (Exception ex)
+				// Log external changes (skip if file was added via UI)
+				if (e.ChangeType == FileChangeType.Created)
 				{
-					_loggingService.LogError("Failed to handle file change", ex);
+					if (_recentlyAddedFiles.Remove(e.FilePath))
+					{
+						// File was added via UI, skip duplicate history entry
+						return;
+					}
+					var fileName = System.IO.Path.GetFileName(e.FilePath);
+					var extension = System.IO.Path.GetExtension(e.FilePath);
+					long size = 0;
+					if (System.IO.File.Exists(e.FilePath))
+					{
+						size = new System.IO.FileInfo(e.FilePath).Length;
+					}
+					_historyService.AddHistoryEntry(fileName, e.FilePath, extension, size, "External Add");
+					RefreshHistory();
 				}
-			});
+				else if (e.ChangeType == FileChangeType.Deleted)
+				{
+					var fileName = System.IO.Path.GetFileName(e.FilePath);
+					_historyService.AddHistoryEntry(fileName, e.FilePath, "", 0, "External Delete");
+					RefreshHistory();
+				}
+
+				_loggingService.LogInfo($"External file change detected: {e.ChangeType}");
+			}
+			catch (Exception ex)
+			{
+				_loggingService.LogError("Failed to handle file change", ex);
+			}
 		}
 
 		/// <summary>
