@@ -12,8 +12,7 @@ A WPF desktop application for managing documents using the **MVVM (Model-View-Vi
 DocumentManager/
 ├── Models/                 # Data classes
 │   ├── Document.cs         # Document information
-│   ├── HistoryEntry.cs     # History record
-│   └── AppConfig.cs        # Configuration settings
+│   └── HistoryEntry.cs     # History record
 │
 ├── Services/               # Business logic layer
 │   ├── IConfigService.cs / ConfigService.cs      # Reads appsettings.json
@@ -33,7 +32,8 @@ DocumentManager/
 │   └── AddDocumentWindow.xaml/.cs
 │
 ├── Converters/             # Value converters for XAML bindings
-│   └── InverseBooleanToVisibilityConverter.cs
+│   ├── InverseBooleanToVisibilityConverter.cs
+│   └── StringToVisibilityConverter.cs
 │
 ├── App.xaml/.cs            # Application entry point
 └── appsettings.json        # Configuration file
@@ -123,11 +123,15 @@ public MainViewModel(IDocumentService documentService, ILoggingService loggingSe
 ### 5. Thread Safety (Dispatcher)
 ```csharp
 // FileWatcher runs on background thread
-// Must use Dispatcher to update UI
-Application.Current.Dispatcher.Invoke(() =>
+// Check if already on UI thread before invoking
+if (Application.Current.Dispatcher.CheckAccess())
 {
-    Documents.Add(newDocument);  // Safe UI update
-});
+    HandleFileChange(e);  // Already on UI thread
+}
+else
+{
+    Application.Current.Dispatcher.Invoke(() => HandleFileChange(e));
+}
 ```
 
 ---
