@@ -46,4 +46,3 @@ Dispatcher).
 8) Technical Requirements
 Use MVVM principles, no business logic in code-behind, use Commands for actions. Separate into layers: Views,
 ViewModels, Models, Services. Ensure proper error handling and clean, readable code.
-<img width="1192" height="1685" alt="image" src="https://github.com/user-attachments/assets/6bfceb3e-5eb9-4c68-9b7a-fcc3d8a385c1" />
