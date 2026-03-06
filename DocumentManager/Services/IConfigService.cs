@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace DocumentManager.Services
 {
 	public interface IConfigService
