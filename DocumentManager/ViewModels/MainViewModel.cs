@@ -37,6 +37,22 @@ namespace DocumentManager.ViewModels
 			set => SetProperty(ref _history, value);
 		}
 
+		// Timestamp properties
+		private string _createdAt = string.Empty;
+		private string _modifiedAt = string.Empty;
+
+		public string CreatedAt
+		{
+			get => _createdAt;
+			set => SetProperty(ref _createdAt, value);
+		}
+
+		public string ModifiedAt
+		{
+			get => _modifiedAt;
+			set => SetProperty(ref _modifiedAt, value);
+		}
+
 		// Commands for buttons
 		public IMvxCommand AddDocumentCommand { get; }
 		public IMvxCommand ClearHistoryCommand { get; }
