@@ -101,17 +101,6 @@ namespace DocumentManager.Services
             }
         }
 
-        public void RemoveDocument(string documentId)
-        {
-            var document = _documents.FirstOrDefault(d => d.Id == documentId);
-            if (document != null)
-            {
-                _documents.Remove(document);
-                SaveDocuments(_documents);
-                _loggingService.LogInfo($"Document removed: {document.FileName}");
-            }
-        }
-
         public void SaveDocuments(List<Document> documents)
         {
             try

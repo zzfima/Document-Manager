@@ -6,7 +6,6 @@ namespace DocumentManager.Services
 	{
 		List<Document> GetAllDocuments();
 		Document? AddDocument(string sourceFilePath);
-		void RemoveDocument(string documentId);
 		void SaveDocuments(List<Document> documents);
 		Document? CreateDocumentFromFile(string filePath);
 		void RefreshDocumentsFromStorage();

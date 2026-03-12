@@ -53,12 +53,11 @@ namespace DocumentManager.Services
             return _history.OrderByDescending(h => h.AddedAt).ToList();
         }
 
-        public void AddHistoryEntry(string fileName, string originalPath, string extension, long size, string action = "Added")
+        public void AddHistoryEntry(string fileName, string extension, long size, string action = "Added")
         {
             var entry = new HistoryEntry
             {
                 FileName = fileName,
-                OriginalPath = originalPath,
                 Extension = extension,
                 Size = size,
                 AddedAt = DateTime.Now,
