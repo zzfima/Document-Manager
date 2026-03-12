@@ -17,7 +17,6 @@ namespace DocumentManager.Services
 	{
 		Created,
 		Deleted,
-		Changed,
 		Renamed
 	}
 }

@@ -12,7 +12,8 @@ A WPF desktop application for managing documents using the **MVVM (Model-View-Vi
 DocumentManager/
 ├── Models/                 # Data classes
 │   ├── Document.cs         # Document information
-│   └── HistoryEntry.cs     # History record
+│   ├── HistoryEntry.cs     # History record
+│   └── TemplateDocument.cs  # Base class for Document and HistoryEntry
 │
 ├── Services/               # Business logic layer
 │   ├── IConfigService.cs / ConfigService.cs      # Reads appsettings.json
@@ -32,7 +33,6 @@ DocumentManager/
 │   └── AddDocumentWindow.xaml/.cs
 │
 ├── Converters/             # Value converters for XAML bindings
-│   ├── InverseBooleanToVisibilityConverter.cs
 │   └── StringToVisibilityConverter.cs
 │
 ├── App.xaml/.cs            # Application entry point
@@ -53,6 +53,7 @@ DocumentManager/
 | 6 | Logging with timestamp + level | LoggingService.cs |
 | 7 | Real-time file monitoring | FileWatcherService.cs |
 | 8 | MVVM pattern with Commands | ViewModels + MvxCommand |
+| 9 | Status bar with timestamps | MainWindow.xaml - StatusBar |
 
 ---
 
@@ -120,7 +121,19 @@ public MainViewModel(IDocumentService documentService, ILoggingService loggingSe
 }
 ```
 
-### 5. Thread Safety (Dispatcher)
+### 5. Status Bar Bindings
+```xml
+<!-- In MainWindow.xaml -->
+<StatusBar>
+    <TextBlock Text="Created At: "/>
+    <TextBlock Text="{Binding CreatedAt}" FontWeight="Bold"/>
+    <Separator/>
+    <TextBlock Text="Modified At: "/>
+    <TextBlock Text="{Binding ModifiedAt}" FontWeight="Bold"/>
+</StatusBar>
+```
+
+### 6. Thread Safety (Dispatcher)
 ```csharp
 // FileWatcher runs on background thread
 // Check if already on UI thread before invoking
@@ -131,6 +144,16 @@ if (Application.Current.Dispatcher.CheckAccess())
 else
 {
     Application.Current.Dispatcher.Invoke(() => HandleFileChange(e));
+}
+```
+
+### 7. File Change Types
+```csharp
+public enum FileChangeType
+{
+    Created,
+    Deleted,
+    Renamed
 }
 ```
 

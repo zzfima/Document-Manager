@@ -4,7 +4,6 @@
              xmlns:converters="clr-namespace:DocumentManager.Converters"
              Startup="Application_Startup">
     <Application.Resources>
-        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisConverter"/>
         <converters:StringToVisibilityConverter x:Key="StringToVisConverter"/>
     </Application.Resources>
 </Application>
