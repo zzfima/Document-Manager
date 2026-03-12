@@ -1,122 +1,123 @@
-using System.IO;
 using DocumentManager.Services;
+using Humanizer;
 using MvvmCross.Commands;
+using System.IO;
 
 namespace DocumentManager.ViewModels
 {
-	/// <summary>
-	/// ViewModel for the Add Document window
-	/// </summary>
-	public class AddDocumentViewModel : ViewModelBase
-	{
-		// Services
-		private readonly IConfigService _configService;
-		private readonly ILoggingService _loggingService;
+    /// <summary>
+    /// ViewModel for the Add Document window
+    /// </summary>
+    public class AddDocumentViewModel : ViewModelBase
+    {
+        // Services
+        private readonly IConfigService _configService;
+        private readonly ILoggingService _loggingService;
 
-		private string _selectedFilePath = string.Empty;
-		private string _fileName = string.Empty;
-		private string _fileType = string.Empty;
-		private string _fileSize = string.Empty;
-		private string _filePath = string.Empty;
-		private string _createdAt = string.Empty;
-		private string _modifiedAt = string.Empty;
-		private bool _isFileSelected;
-		private bool _isValidFile;
-		private string _errorMessage = string.Empty;
+        private string _selectedFilePath = string.Empty;
+        private string _fileName = string.Empty;
+        private string _fileType = string.Empty;
+        private string _fileSize = string.Empty;
+        private string _filePath = string.Empty;
+        private string _createdAt = string.Empty;
+        private string _modifiedAt = string.Empty;
+        private bool _isFileSelected;
+        private bool _isValidFile;
+        private string _errorMessage = string.Empty;
 
-		public string SelectedFilePath
-		{
-			get => _selectedFilePath;
-			set
-			{
-				if (SetProperty(ref _selectedFilePath, value))
-				{
-					UpdateFileInfo();
-				}
-			}
-		}
+        public string SelectedFilePath
+        {
+            get => _selectedFilePath;
+            set
+            {
+                if (SetProperty(ref _selectedFilePath, value))
+                {
+                    UpdateFileInfo();
+                }
+            }
+        }
 
-		public string FileName
-		{
-			get => _fileName;
-			set => SetProperty(ref _fileName, value);
-		}
+        public string FileName
+        {
+            get => _fileName;
+            set => SetProperty(ref _fileName, value);
+        }
 
-		public string FileType
-		{
-			get => _fileType;
-			set => SetProperty(ref _fileType, value);
-		}
+        public string FileType
+        {
+            get => _fileType;
+            set => SetProperty(ref _fileType, value);
+        }
 
-		public string FileSize
-		{
-			get => _fileSize;
-			set => SetProperty(ref _fileSize, value);
-		}
+        public string FileSize
+        {
+            get => _fileSize;
+            set => SetProperty(ref _fileSize, value);
+        }
 
-		public string FilePath
-		{
-			get => _filePath;
-			set => SetProperty(ref _filePath, value);
-		}
+        public string FilePath
+        {
+            get => _filePath;
+            set => SetProperty(ref _filePath, value);
+        }
 
-		public string CreatedAt
-		{
-			get => _createdAt;
-			set => SetProperty(ref _createdAt, value);
-		}
+        public string CreatedAt
+        {
+            get => _createdAt;
+            set => SetProperty(ref _createdAt, value);
+        }
 
-		public string ModifiedAt
-		{
-			get => _modifiedAt;
-			set => SetProperty(ref _modifiedAt, value);
-		}
+        public string ModifiedAt
+        {
+            get => _modifiedAt;
+            set => SetProperty(ref _modifiedAt, value);
+        }
 
-		public bool IsFileSelected
-		{
-			get => _isFileSelected;
-			set => SetProperty(ref _isFileSelected, value);
-		}
+        public bool IsFileSelected
+        {
+            get => _isFileSelected;
+            set => SetProperty(ref _isFileSelected, value);
+        }
 
-		public bool IsValidFile
-		{
-			get => _isValidFile;
-			set
-			{
-				if (SetProperty(ref _isValidFile, value))
-				{
-					ConfirmCommand.RaiseCanExecuteChanged();
-				}
-			}
-		}
+        public bool IsValidFile
+        {
+            get => _isValidFile;
+            set
+            {
+                if (SetProperty(ref _isValidFile, value))
+                {
+                    ConfirmCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
 
-		public string ErrorMessage
-		{
-			get => _errorMessage;
-			set => SetProperty(ref _errorMessage, value);
-		}
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
 
-		// Commands
-		public IMvxCommand BrowseCommand { get; }
-		public MvxCommand ConfirmCommand { get; }
-		public IMvxCommand CancelCommand { get; }
+        // Commands
+        public IMvxCommand BrowseCommand { get; }
+        public MvxCommand ConfirmCommand { get; }
+        public IMvxCommand CancelCommand { get; }
 
-		// Events for communication with View
-		public event EventHandler<string>? DocumentConfirmed;
-		public event EventHandler? RequestClose;
+        // Events for communication with View
+        public event EventHandler<string>? DocumentConfirmed;
+        public event EventHandler? RequestClose;
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		public AddDocumentViewModel(IConfigService configService, ILoggingService loggingService)
-		{
-			_configService = configService;
-			_loggingService = loggingService;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public AddDocumentViewModel(IConfigService configService, ILoggingService loggingService)
+        {
+            _configService = configService;
+            _loggingService = loggingService;
 
-			BrowseCommand = new MvxCommand(BrowseFile);
-			ConfirmCommand = new MvxCommand(Confirm, () => IsValidFile);
-			CancelCommand = new MvxCommand(Cancel);
-		}
+            BrowseCommand = new MvxCommand(BrowseFile);
+            ConfirmCommand = new MvxCommand(Confirm, () => IsValidFile);
+            CancelCommand = new MvxCommand(Cancel);
+        }
 
         private void BrowseFile()
         {
@@ -201,33 +202,26 @@ namespace DocumentManager.ViewModels
 		/// Confirms the document selection and raises event
 		/// </summary>
 		private void Confirm()
-		{
-			if (IsValidFile && !string.IsNullOrEmpty(SelectedFilePath))
-			{
-				DocumentConfirmed?.Invoke(this, SelectedFilePath);
-				RequestClose?.Invoke(this, EventArgs.Empty);
-			}
-		}
-
-		/// <summary>
-		/// Cancels and closes the window
-		/// </summary>
-		private void Cancel()
-		{
-			RequestClose?.Invoke(this, EventArgs.Empty);
-		}
-
-        private static string FormatSize(long bytes)
         {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            int order = 0;
-            double size = bytes;
-            while (size >= 1024 && order < sizes.Length - 1)
+            if (IsValidFile && !string.IsNullOrEmpty(SelectedFilePath))
             {
-                order++;
-                size /= 1024;
+                DocumentConfirmed?.Invoke(this, SelectedFilePath);
+                RequestClose?.Invoke(this, EventArgs.Empty);
             }
-            return $"{size:0.##} {sizes[order]}";
+        }
+
+        /// <summary>
+        /// Cancels and closes the window
+        /// </summary>
+        private void Cancel()
+        {
+            RequestClose?.Invoke(this, EventArgs.Empty);
+        }
+
+        private string FormatSize(long bytes)
+        {
+            string result = bytes.Bytes().Humanize();
+            return result;
         }
     }
 }
